@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HydraFlow — ระบบพันธมิตรขายสินค้า</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,'Segoe UI','Noto Sans Thai',sans-serif;background:#f1f5f9;color:#0f172a}
+.hidden{display:none!important}
+input,select,textarea{width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;background:#fff}
+label{display:block;font-size:12px;font-weight:600;color:#475569;margin:12px 0 4px}
+code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-size:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;background:#0f766e;color:#fff}
+.btn.secondary{background:#e2e8f0;color:#0f172a}
+.btn.danger{background:#fee2e2;color:#b91c1c}
+.btn.small{padding:5px 10px;font-size:12px}
+.btn:hover{opacity:.88}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a,#134e4a)}
+#login .card{background:#fff;border-radius:16px;padding:36px;width:min(410px,92vw)}
+#login h1{font-size:22px}
+#login .sub{color:#64748b;font-size:13px;margin:4px 0 14px}
+#app{display:flex;min-height:100vh}
+aside{width:228px;background:#0f172a;color:#cbd5e1;padding:20px 12px;flex-shrink:0}
+aside .logo{font-weight:800;color:#fff;font-size:17px;padding:4px 12px 18px}
+aside .logo span{color:#2dd4bf}
+.nav-btn{display:block;width:100%;text-align:left;background:none;border:0;color:#cbd5e1;font:inherit;padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:2px}
+.nav-btn:hover{background:#1e293b;color:#fff}
+.nav-btn.active{background:#0f766e;color:#fff}
+main{flex:1;padding:24px 28px;min-width:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.topbar h2{font-size:20px}
+.topbar .sub{font-size:12px;color:#64748b}
+.grid{display:grid;gap:14px}
+.cards{grid-template-columns:repeat(auto-fit,minmax(168px,1fr));margin-bottom:16px}
+.two{grid-template-columns:1fr 1fr}
+.stat{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(15,23,42,.08)}
+.stat .k{font-size:12px;color:#64748b}
+.stat .v{font-size:22px;font-weight:800;margin-top:4px}
+.panel{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(15,23,42,.08);margin-bottom:16px;overflow:auto}
+.panel h3{font-size:15px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+th{color:#64748b;font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid #e2e8f0;white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr:hover td{background:#f8fafc}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge.on{background:#d1fae5;color:#065f46}
+.badge.off{background:#e2e8f0;color:#475569}
+.badge.pending{background:#fef3c7;color:#92400e}
+.badge.approved{background:#dbeafe;color:#1e40af}
+.badge.paid{background:#d1fae5;color:#065f46}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.muted{color:#64748b;font-size:12px}
+.chart{display:flex;align-items:flex-end;gap:10px;height:170px;padding-top:8px}
+.chart .bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;height:100%}
+.chart .fill{width:100%;background:linear-gradient(180deg,#2dd4bf,#0f766e);border-radius:6px 6px 0 0;min-height:3px}
+.chart .lbl{font-size:11px;color:#64748b}
+.chart .val{font-size:11px;font-weight:700}
+#modalWrap{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#modal{background:#fff;border-radius:14px;width:min(640px,100%);max-height:88vh;display:flex;flex-direction:column}
+#modal.wide{width:min(920px,100%)}
+.mhead{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid #e2e8f0}
+.mbody{padding:8px 22px 18px;overflow:auto}
+.mfoot{padding:14px 22px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:8px}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+#toast.show{opacity:1}
+.creative-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.creative{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px}
+.creative img{width:100%;height:110px;object-fit:cover;border-radius:8px;background:#f1f5f9}
+@media(max-width:900px){.two{grid-template-columns:1fr}}
+@media(max-width:760px){#app{flex-direction:column}aside{width:100%;display:flex;flex-wrap:wrap;gap:4px}aside .logo{width:100%}.nav-btn{width:auto}main{padding:16px}}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="card">
+    <h1>HydraFlow <span style="color:#0f766e">Affiliate</span></h1>
+    <p class="sub">ระบบจัดการพันธมิตรขายสินค้า — เข้าสู่ระบบผู้ดูแล</p>
+    <label>ชื่อผู้ใช้</label>
+    <input id="loginUser" value="admin" onkeydown="if(event.key==='Enter')doLogin()">
+    <label>รหัสผ่าน</label>
+    <input id="loginPass" type="password" onkeydown="if(event.key==='Enter')doLogin()">
+    <p id="loginErr" style="color:#dc2626;font-size:12px;margin-top:10px"></p>
+    <div style="margin-top:16px"><button class="btn" style="width:100%" onclick="doLogin()">เข้าสู่ระบบ</button></div>
+    <p class="muted" style="margin-top:14px">รหัสเริ่มต้นสำหรับทดลอง: admin / hydra1234 (เปลี่ยนได้ในหน้าตั้งค่า)</p>
+    <p id="publicLink"></p>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <aside>
+    <div class="logo">Hydra<span>Flow</span></div>
+    <button class="nav-btn" data-v="dashboard" onclick="nav('dashboard')">📊 Command Center</button>
+    <button class="nav-btn" data-v="campaigns" onclick="nav('campaigns')">🚀 แคมเปญ & โฆษณา</button>
+    <button class="nav-btn" data-v="pages" onclick="nav('pages')">🖼 Landing Page Studio</button>
+    <button class="nav-btn" data-v="affiliates" onclick="nav('affiliates')">👥 พันธมิตร</button>
+    <button class="nav-btn" data-v="orders" onclick="nav('orders')">🧾 ออเดอร์ & คอมมิชชั่น</button>
+    <button class="nav-btn" data-v="creatives" onclick="nav('creatives')">🎨 คลัง Creative</button>
+    <button class="nav-btn" data-v="channels" onclick="nav('channels')">📡 Channel Mix</button>
+    <button class="nav-btn" data-v="settings" onclick="nav('settings')">⚙️ ตั้งค่าระบบ</button>
+  </aside>
+  <main>
+    <header class="topbar">
+      <div><h2 id="pageTitle"></h2><div class="sub" id="pageSub"></div></div>
+      <button class="btn secondary small" onclick="doLogout()">ออกจากระบบ</button>
+    </header>
+    <section id="view"></section>
+  </main>
+</div>
+
+<div id="modalWrap" class="hidden">
+  <div id="modal">
+    <div class="mhead"><b id="modalTitle"></b><button class="btn secondary small" onclick="closeModal()">ปิด</button></div>
+    <div class="mbody" id="modalBody"></div>
+    <div class="mfoot"><button class="btn secondary" onclick="closeModal()">ยกเลิก</button><button class="btn" id="modalSaveBtn">บันทึก</button></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ================= ฐานข้อมูล (localStorage) ================= */
+const KEY='hydraflow_db_v1';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const baht=n=>Number(n||0).toLocaleString('th-TH',{maximumFractionDigits:0})+' ฿';
+const statusBadge=s=>s==='pending'?'<span class="badge pending">รออนุมัติ</span>':s==='approved'?'<span class="badge approved">อนุมัติแล้ว</span>':'<span class="badge paid">จ่ายแล้ว</span>';
+const randHex=n=>Array.from(crypto.getRandomValues(new Uint8Array(n))).map(b=>b.toString(16).padStart(2,'0')).join('');
+
+const LP_TEMPLATE=['<!DOCTYPE html>','<html lang="th">','<head>','<meta charset="UTF-8">','<meta name="viewport" content="width=device-width,initial-scale=1">','<title>{{product_name}}</title>','<style>','body{font-family:system-ui,"Noto Sans Thai",sans-serif;background:#0f172a;color:#fff;display:grid;place-items:center;min-height:100vh;margin:0}','.wrap{max-width:430px;padding:32px;text-align:center}','.pill{display:inline-block;background:#134e4a;color:#5eead4;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700}','h1{font-size:26px;margin:18px 0 6px}','.old{color:#94a3b8;text-decoration:line-through}','.price{font-size:36px;font-weight:800;color:#5eead4;margin:10px 0}','ul{text-align:left;color:#cbd5e1;line-height:1.9;font-size:14px;margin:14px 0 0}','.cta{display:block;background:#14b8a6;color:#04211d;font-weight:800;padding:14px;border-radius:12px;text-decoration:none;font-size:16px;margin-top:22px}','</style>','</head>','<body>','<div class="wrap">','<span class="pill">โปรโมชั่นพิเศษ จำนวนจำกัด</span>','<h1>{{product_name}}</h1>','<p class="old">{{price}} ฿</p>','<div class="price">{{sale_price}} ฿</div>','<ul>','<li>ส่วนผสมคุณภาพสูง ปลอดภัย ได้มาตรฐาน</li>','<li>ส่งฟรีทั่วประเทศ พร้อมเก็บเงินปลายทาง</li>','<li>รับประกันความพึงพอใจ 30 วัน</li>','</ul>','<a class="cta" href="{{ref_link}}">สั่งซื้อเลย — คลิกที่นี่</a>','</div>','</body>','</html>'].join('\n');
+
+function seed(){
+  const now=Date.now();
+  const affiliates=[
+    {id:'a1',name:'คุณแนน (TikTok)',contact:'LINE: naan123',pct:10,status:'active'},
+    {id:'a2',name:'คุณเบียร์ (Facebook)',contact:'เบอร์ 08x-xxx-1234',pct:8,status:'active'},
+    {id:'a3',name:'คุณต้น (Instagram)',contact:'IG: ton.review',pct:12,status:'active'}];
+  const campaigns=[
+    {id:'c1',name:'เปิดตัวคอลลาเจน Gold',adCode:'COLL10',channel:'TikTok',landing:'หน้าขายคอลลาเจน Gold',status:'active',clicks:184},
+    {id:'c2',name:'Flash Sale สิ้นเดือน',adCode:'FLASH05',channel:'Facebook',landing:'',status:'active',clicks:126},
+    {id:'c3',name:'รีวิวโดยสายผิว',adCode:'SKIN22',channel:'Instagram',landing:'',status:'paused',clicks:57}];
+  const orders=[];const amts=[450,790,1290,1590,1990,2490];let oi=0;
+  for(let d=6;d>=0;d--){const n=1+Math.floor(Math.random()*3);
+    for(let i=0;i<n;i++){const a=affiliates[Math.floor(Math.random()*3)];const c=campaigns[Math.floor(Math.random()*3)];
+      const amt=amts[Math.floor(Math.random()*amts.length)];
+      const st=Math.random()<.2?'paid':(Math.random()<.55?'approved':'pending');
+      orders.push({id:'o'+(++oi),affId:a.id,campId:c.id,amount:amt,commission:+(amt*a.pct/100).toFixed(2),status:st,ref:'ORD-'+(1000+oi),createdAt:new Date(now-d*864e5-Math.random()*5e7).toISOString()});}}
+  return{affiliates,campaigns,orders,
+    pages:[{id:'p1',name:'หน้าขายคอลลาเจน Gold',status:'active',html:LP_TEMPLATE,updatedAt:now}],
+    creatives:[],
+    channels:[{id:'ch1',name:'Facebook',note:'เพจรีวิว + กลุ่ม',status:'active'},{id:'ch2',name:'TikTok',note:'คลิปสั้น 15-30 วิ',status:'active'},{id:'ch3',name:'Instagram',note:'Story + Feed',status:'active'},{id:'ch4',name:'LINE OA',note:'รอทำคอนเทนต์',status:'paused'}],
+    settings:{store:'GlowShop',defaultPct:10,secret:randHex(16),tz:'Asia/Bangkok',publicStats:false,user:'admin',pass:'hydra1234'},
+    activity:[{t:now,text:'ติดตั้งระบบสำเร็จ — สร้างข้อมูลตัวอย่างอัตโนมัติ'}]};
+}
+let DB;
+try{DB=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!DB||!DB.settings){DB=seed();persist();}
+function persist(){localStorage.setItem(KEY,JSON.stringify(DB))}
+function log(text){DB.activity.unshift({t:Date.now(),text});if(DB.activity.length>50)DB.activity.length=50;}
+
+let toastTimer=null;
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2200);}
+
+let modalSave=null;
+function openModal(title,body,onSave,wide){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;modalSave=onSave;$('modalSaveBtn').classList.toggle('hidden',!onSave);$('modal').classList.toggle('wide',!!wide);$('modalWrap').classList.remove('hidden');}
+function closeModal(){$('modalWrap').classList.add('hidden');modalSave=null;}
+$('modalSaveBtn').onclick=()=>{if(modalSave&&modalSave()===false)return;closeModal();};
+
+/* ================= ล็อกอิน / เมนู ================= */
+function doLogin(){$('loginErr').textContent='';
+  if($('loginUser').value.trim()===DB.settings.user&&$('loginPass').value===DB.settings.pass){
+    sessionStorage.setItem('hydra_session','1');$('login').classList.add('hidden');$('app').classList.remove('hidden');renderRoute();toast('ยินดีต้อนรับ');}
+  else $('loginErr').textContent='ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';}
+function doLogout(){sessionStorage.removeItem('hydra_session');$('app').classList.add('hidden');$('login').classList.remove('hidden');$('loginPass').value='';}
+
+const VIEWS={dashboard:['Command Center','ภาพรวมการดำเนินงานแบบเรียลไทม์'],campaigns:['แคมเปญ & ชุดโฆษณา','จัดการรหัสโฆษณา ลิงก์ติดตาม และสถิติ'],pages:['Landing Page Studio','สร้าง แก้ไข และดูตัวอย่างหน้าขาย'],affiliates:['พันธมิตร (Affiliate Control)','จัดการตัวแทน เปอร์เซ็นต์คอมมิชชั่น และยอดจ่าย'],orders:['ออเดอร์ & คอมมิชชั่น','บันทึกยอดขาย อนุมัติ และจ่ายคอมมิชชั่น'],creatives:['คลัง Creative Library','แบนเนอร์ Desktop / Mobile พร้อมโค้ดใช้งาน'],channels:['Channel Mix','จัดการช่องทางและแหล่งที่มาของทราฟฟิก'],settings:['ตั้งค่าระบบ','นโยบายคอมมิชชั่น Webhook และความปลอดภัย']};
+function nav(v){if(location.hash==='#'+v)renderRoute();else location.hash=v;}
+function renderRoute(){const v=(location.hash||'#dashboard').slice(1);const view=VIEWS[v]?v:'dashboard';
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.v===view));
+  const [t,s]=VIEWS[view];$('pageTitle').textContent=t;$('pageSub').textContent=s;
+  ({dashboard:renderDashboard,campaigns:renderCampaigns,pages:renderPages,affiliates:renderAffiliates,orders:renderOrders,creatives:renderCreatives,channels:renderChannels,settings:renderSettings})[view]();
+  window.scrollTo(0,0);}
+
+/* ================= 1) Command Center ================= */
+function renderDashboard(){
+  const clicks=DB.campaigns.reduce((s,c)=>s+(+c.clicks||0),0);
+  const orders=DB.orders;
+  const revenue=orders.reduce((s,o)=>s+ +o.amount,0);
+  const comm=orders.reduce((s,o)=>s+ +o.commission,0);
+  const pend=orders.filter(o=>o.status==='pending').reduce((s,o)=>s+ +o.commission,0);
+  const appr=orders.filter(o=>o.status==='approved').reduce((s,o)=>s+ +o.commission,0);
+  const days=[...Array(7)].map((_,i)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-(6-i));return d;});
+  const perDay=days.map(d=>{const nx=new Date(d);nx.setDate(d.getDate()+1);return orders.filter(o=>{const t=new Date(o.createdAt);return t>=d&&t<nx;}).reduce((s,o)=>s+ +o.amount,0);});
+  const max=Math.max(...perDay,1);
+  const bars=days.map((d,i)=>`<div class="bar"><div class="val">${perDay[i]>=1000?(perDay[i]/1000).toFixed(1)+'k':(perDay[i]||'')}</div><div class="fill" style="height:${Math.max(perDay[i]/max*100,3)}%"></div><div class="lbl">${d.toLocaleDateString('th-TH',{weekday:'short'})}</div></div>`).join('');
+  const top=DB.affiliates.map(a=>{const os=orders.filter(o=>o.affId===a.id);return{a,n:os.length,rev:os.reduce((s,o)=>s+ +o.amount,0)};}).sort((x,y)=>y.rev-x.rev).slice(0,5);
+  const recent=[...orders].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,6);
+  $('view').innerHTML=`
+  <div class="grid cards">
+    <div class="stat"><div class="k">คลิกรวมทุกแคมเปญ</div><div class="v">${clicks.toLocaleString('th-TH')}</div></div>
+    <div class="stat"><div class="k">ออเดอร์ทั้งหมด</div><div class="v">${orders.length}</div></div>
+    <div class="stat"><div class="k">ยอดขายรวม</div><div class="v">${baht(revenue)}</div></div>
+    <div class="stat"><div class="k">คอมมิชชั่นรวม</div><div class="v">${baht(comm)}</div></div>
+    <div class="stat"><div class="k">รออนุมัติ / รอจ่าย</div><div class="v" style="color:#b45309;font-size:18px">${baht(pend)} / ${baht(appr)}</div></div>
+  </div>
+  <div class="panel"><h3>ยอดขาย 7 วันล่าสุด</h3><div class="chart">${bars}</div></div>
+  <div class="grid two">
+    <div class="panel"><h3>พันธมิตรทำยอดสูงสุด</h3><table><tr><th>พันธมิตร</th><th>ออเดอร์</th><th>ยอดขาย</th></tr>${top.map(t=>`<tr><td>${esc(t.a.name)}</td><td>${t.n}</td><td>${baht(t.rev)}</td></tr>`).join('')}</table></div>
+    <div class="panel"><h3>ออเดอร์ล่าสุด</h3><table><tr><th>รหัส</th><th>พันธมิตร</th><th>ยอด</th><th>สถานะ</th></tr>${recent.map(o=>{const a=DB.affiliates.find(x=>x.id===o.affId);return`<tr><td>${esc(o.ref)}</td><td>${esc(a?a.name:'-')}</td><td>${baht(o.amount)}</td><td>${statusBadge(o.status)}</td></tr>`;}).join('')}</table></div>
+  </div>
+  <div class="panel"><h3>กิจกรรมล่าสุด</h3>${DB.activity.slice(0,8).map(x=>`<div style="padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px"><span class="muted">${new Date(x.t).toLocaleString('th-TH')}</span> — ${esc(x.text)}</div>`).join('')||'<span class="muted">ยังไม่มีกิจกรรม</span>'}</div>`;}
+
+/* ================= 2) แคมเปญ & ชุดโฆษณา ================= */
+function renderCampaigns(){
+  $('view').innerHTML=`<div class="toolbar"><button class="btn" onclick="campForm()">+ สร้างแคมเปญ</button><span class="muted">ลิงก์ติดตามใช้พารามิเตอร์ ?ref=รหัสโฆษณา — คนคลิกเข้า 1 ครั้ง = นับ 1 คลิกให้แคมเปญนั้น</span></div>
+  <div class="panel"><table>
+  <tr><th>แคมเปญ</th><th>รหัสโฆษณา</th><th>ช่องทาง</th><th>คลิก</th><th>ออเดอร์</th><th>Conv.</th><th>ยอดขาย</th><th>สถานะ</th><th>จัดการ</th></tr>
+  ${DB.campaigns.map(c=>{const os=DB.orders.filter(o=>o.campId===c.id);const rev=os.reduce((s,o)=>s+ +o.amount,0);const conv=c.clicks?(os.length/c.clicks*100).toFixed(1):0;
+    return`<tr><td><b>${esc(c.name)}</b>${c.landing?`<div class="muted">${esc(c.landing)}</div>`:''}</td><td><code>${esc(c.adCode)}</code></td><td>${esc(c.channel)}</td><td>${c.clicks}</td><td>${os.length}</td><td>${conv}%</td><td>${baht(rev)}</td><td>${c.status==='active'?'<span class="badge on">เปิดใช้งาน</span>':'<span class="badge off">หยุดชั่วคราว</span>'}</td>
+    <td style="white-space:nowrap"><button class="btn secondary small" onclick="copyLink('${esc(c.adCode)}')">ลิงก์</button> <button class="btn secondary small" onclick="campForm('${c.id}')">แก้ไข</button> <button class="btn danger small" onclick="delItem('campaigns','${c.id}','แคมเปญ')">ลบ</button></td></tr>`;}).join('')}
+  </table></div>`;}
+
+function copyLink(code){
+  const base=(location.origin&&location.origin!=='null')?location.origin+location.pathname:'https://your-site.vercel.app/';
+  const link=base+'?ref='+code;
+  openModal('ลิงก์ติดตามแคมเปญ ['+code+']',`
+  <p class="muted" style="margin-top:8px">แจกลิงก์นี้ให้พันธมิตร หรือใส่ในแบนเนอร์/ไบโอ — เมื่อมีคนเปิดลิงก์ ระบบจะนับคลิกให้แคมเปญนี้อัตโนมัติ (ใช้หลัง deploy จริง)</p>
+  <input id="cp" readonly value="${esc(link)}" onclick="this.select()" style="margin-top:10px">
+  <button class="btn" style="margin-top:12px" onclick="navigator.clipboard.writeText(document.getElementById('cp').value).then(()=>toast('คัดลอกแล้ว'))">คัดลอกลิงก์</button>`,null);}
+
+function campForm(id){const c=id?DB.campaigns.find(x=>x.id===id):null;
+  openModal(c?'แก้ไขแคมเปญ':'สร้างแคมเปญใหม่',`
+  <label>ชื่อแคมเปญ</label><input id="f_name" value="${esc(c?c.name:'')}">
+  <label>รหัสโฆษณา (Ad Code) — ภาษาอังกฤษ/ตัวเลข</label><input id="f_code" value="${esc(c?c.adCode:'PROMO'+Math.floor(Math.random()*90+10))}">
+  <label>ช่องทาง</label><select id="f_channel">${DB.channels.map(ch=>`<option ${c&&c.channel===ch.name?'selected':''}>${esc(ch.name)}</option>`).join('')}</select>
+  <label>ใช้ Landing Page</label><select id="f_landing"><option value="">— ไม่ระบุ —</option>${DB.pages.map(p=>`<option ${c&&c.landing===p.name?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+  <label>สถานะ</label><select id="f_status"><option value="active" ${c&&c.status==='paused'?'':'selected'}>เปิดใช้งาน</option><option value="paused" ${c&&c.status==='paused'?'selected':''}>หยุดชั่วคราว</option></select>`,
+  ()=>{const name=$('f_name').value.trim();const code=$('f_code').value.trim().toUpperCase();
+    if(!name){toast('กรอกชื่อแคมเปญ');return false;}
+    if(!/^[A-Z0-9_-]+$/.test(code)){toast('รหัสโฆษณาใช้ได้เฉพาะ A-Z 0-9 _ -');return false;}
+    if(DB.campaigns.some(x=>x.adCode===code&&x.id!==id)){toast('รหัสโฆษณานี้ซ้ำ');return false;}
+    if(id){Object.assign(DB.campaigns.find(x=>x.id===id),{name,adCode:code,channel:$('f_channel').value,landing:$('f_landing').value,status:$('f_status').value});}
+    else{DB.campaigns.push({id:uid(),name,adCode:code,channel:$('f_channel').value,landing:$('f_landing').value,status:$('f_status').value,clicks:0});log('สร้างแคมเปญ: '+name);}
+    persist();renderRoute();toast('บันทึกแคมเปญแล้ว');});}
+
+/* ================= 3) Landing Page Studio ================= */
+function renderPages(){
+  $('view').innerHTML=`<div class="toolbar"><button class="btn" onclick="pageForm()">+ สร้าง Landing Page</button><span class="muted">ตัวแปรที่ใช้ได้: {{product_name}} {{price}} {{sale_price}} {{ref_link}}</span></div>
+  <div class="panel"><table><tr><th>หน้า</th><th>สถานะ</th><th>แก้ไขล่าสุด</th><th>จัดการ</th></tr>
+  ${DB.pages.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${p.status==='active'?'<span class="badge on">ใช้งาน</span>':'<span class="badge off">ฉบับร่าง</span>'}</td><td>${new Date(p.updatedAt).toLocaleDateString('th-TH')}</td>
+  <td style="white-space:nowrap"><button class="btn secondary small" onclick="previewPage('${p.id}')">ดูตัวอย่าง</button> <button class="btn secondary small" onclick="pageForm('${p.id}')">แก้ไข</button> <button class="btn danger small" onclick="delItem('pages','${p.id}','หน้า Landing')">ลบ</button></td></tr>`).join('')}
+  </table></div>`;}
+
+function pageForm(id){const p=id?DB.pages.find(x=>x.id===id):null;
+  openModal(p?'แก้ไข Landing Page':'สร้าง Landing Page ใหม่',`
+  <label>ชื่อหน้า</label><input id="f_name" value="${esc(p?p.name:'')}">
+  <label>สถานะ</label><select id="f_status"><option value="active" ${p&&p.status==='paused'?'':'selected'}>ใช้งาน</option><option value="paused" ${p&&p.status==='paused'?'selected':''}>ฉบับร่าง</option></select>
+  <label>โค้ด HTML — ใช้ตัวแปรได้ทั้ง 4 ตัว</label>
+  <textarea id="f_html" rows="15" style="font-family:monospace;font-size:12px">${esc(p?p.html:LP_TEMPLATE)}</textarea>`,
+  ()=>{const name=$('f_name').value.trim();const html=$('f_html').value;
+    if(!name||!html.trim()){toast('กรอกชื่อหน้าและโค้ด HTML');return false;}
+    if(id){Object.assign(DB.pages.find(x=>x.id===id),{name,html,status:$('f_status').value,updatedAt:Date.now()});}
+    else{DB.pages.push({id:uid(),name,html,status:$('f_status').value,updatedAt:Date.now()});log('สร้าง Landing Page: '+name);}
+    persist();renderRoute();toast('บันทึกแล้ว');},true);}
+
+function previewPage(id){const p=DB.pages.find(x=>x.id===id);
+  const html=p.html.replace(/{{product_name}}/g,'คอลลาเจน Gold 10,000mg').replace(/{{price}}/g,'1,290').replace(/{{sale_price}}/g,'790').replace(/{{ref_link}}/g,'#order-now');
+  openModal('ตัวอย่าง: '+p.name,`<iframe sandbox style="width:100%;height:430px;border:1px solid #e2e8f0;border-radius:8px;background:#fff" srcdoc="${esc(html)}"></iframe>
+  <div style="margin-top:10px"><button class="btn secondary small" onclick="downloadPage('${p.id}')">ดาวน์โหลดไฟล์ HTML</button></div>`,null,true);}
+
+function downloadPage(id){const p=DB.pages.find(x=>x.id===id);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([p.html],{type:'text/html'}));
+  a.download=p.name.replace(/\s+/g,'-')+'.html';a.click();toast('ดาวน์โหลดแล้ว');}
+
+/* ================= 4) พันธมิตร ================= */
+function renderAffiliates(){
+  $('view').innerHTML=`<div class="toolbar"><button class="btn" onclick="affForm()">+ เพิ่มพันธมิตร</button><button class="btn secondary" onclick="exportPayout()">Export ยอดจ่าย (CSV)</button><span class="muted">คอมมิชชั่น = % ของยอดขายจริงที่พันธมิตรแนะนำ</span></div>
+  <div class="panel"><table>
+  <tr><th>พันธมิตร</th><th>ติดต่อ</th><th>%</th><th>ออเดอร์</th><th>ยอดขายที่สร้าง</th><th>คอมมิชชั่นรวม</th><th>ค้างจ่าย</th><th>สถานะ</th><th>จัดการ</th></tr>
+  ${DB.affiliates.map(a=>{const os=DB.orders.filter(o=>o.affId===a.id);const rev=os.reduce((s,o)=>s+ +o.amount,0);const comm=os.reduce((s,o)=>s+ +o.commission,0);const unpaid=os.filter(o=>o.status!=='paid').reduce((s,o)=>s+ +o.commission,0);
+    return`<tr><td><b>${esc(a.name)}</b></td><td>${esc(a.contact||'-')}</td><td>${a.pct}%</td><td>${os.length}</td><td>${baht(rev)}</td><td>${baht(comm)}</td><td style="color:#b45309;font-weight:700">${baht(unpaid)}</td><td>${a.status==='active'?'<span class="badge on">ใช้งาน</span>':'<span class="badge off">พักชั่วคราว</span>'}</td>
+    <td style="white-space:nowrap"><button class="btn secondary small" onclick="affForm('${a.id}')">แก้ไข</button> <button class="btn danger small" onclick="delAff('${a.id}')">ลบ</button></td></tr>`;}).join('')}
+  </table></div>`;}
+
+function affForm(id){const a=id?DB.affiliates.find(x=>x.id===id):null;
+  openModal(a?'แก้ไขข้อมูลพันธมิตร':'เพิ่มพันธมิตรใหม่',`
+  <label>ชื่อ / ชื่อร้านพันธมิตร</label><input id="f_name" value="${esc(a?a.name:'')}">
+  <label>ช่องทางติดต่อ (LINE / เบอร์ / IG)</label><input id="f_contact" value="${esc(a?a.contact:'')}">
+  <label>คอมมิชชั่น (%)</label><input id="f_pct" type="number" min="1" max="50" value="${a?a.pct:DB.settings.defaultPct}">
+  <label>สถานะ</label><select id="f_status"><option value="active" ${a&&a.status==='paused'?'':'selected'}>ใช้งาน</option><option value="paused" ${a&&a.status==='paused'?'selected':''}>พักชั่วคราว</option></select>`,
+  ()=>{const name=$('f_name').value.trim();const pct=parseFloat($('f_pct').value);
+    if(!name){toast('กรอกชื่อพันธมิตร');return false;}
+    if(!(pct>0&&pct<=50)){toast('คอมมิชชั่นต้องอยู่ระหว่าง 1-50%');return false;}
+    const rec={name,contact:$('f_contact').value.trim(),pct,status:$('f_status').value};
+    if(id)Object.assign(DB.affiliates.find(x=>x.id===id),rec);
+    else{DB.affiliates.push({id:uid(),...rec});log('เพิ่มพันธมิตรใหม่: '+name);}
+    persist();renderRoute();toast('บันทึกแล้ว');});}
+
+function delAff(id){
+  if(DB.orders.some(o=>o.affId===id)){toast('พันธมิตรมีออเดอร์ในระบบ — ใช้ "พักชั่วคราว" แทนการลบ');return;}
+  if(confirm('ลบพันธมิตรนี้?')){DB.affiliates=DB.affiliates.filter(x=>x.id!==id);persist();renderRoute();toast('ลบแล้ว');}}
+
+function exportPayout(){
+  const rows=[['พันธมิตร','ช่องทางติดต่อ','คอมมิชชั่นค้างจ่าย (บาท)','สถานะ']];
+  DB.affiliates.forEach(a=>{const unpaid=DB.orders.filter(o=>o.affId===a.id&&o.status!=='paid').reduce((s,o)=>s+ +o.commission,0);
+    rows.push([a.name,a.contact||'',unpaid.toFixed(2),unpaid>0?'ต้องจ่าย':'ไม่มีค้างจ่าย']);});
+  const csv='\uFEFF'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='hydraflow-payout-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  log('Export ยอดจ่าย CSV');persist();toast('ดาวน์โหลดไฟล์ยอดจ่ายแล้ว');}
+
+/* ================= 5) ออเดอร์ & คอมมิชชั่น ================= */
+function renderOrders(){
+  $('view').innerHTML=`<div class="toolbar"><button class="btn" onclick="orderForm()">+ บันทึกออเดอร์</button><span class="muted">คอมมิชชั่นคำนวณอัตโนมัติ = ยอดขาย × เปอร์เซ็นต์ของพันธมิตร</span></div>
+  <div class="panel"><table>
+  <tr><th>วันที่</th><th>รหัสอ้างอิง</th><th>พันธมิตร</th><th>แคมเปญ</th><th>ยอดขาย</th><th>คอมมิชชั่น</th><th>สถานะ</th><th>จัดการ</th></tr>
+  ${[...DB.orders].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).map(o=>{const a=DB.affiliates.find(x=>x.id===o.affId);const c=DB.campaigns.find(x=>x.id===o.campId);
+    return`<tr><td>${new Date(o.createdAt).toLocaleDateString('th-TH')}</td><td>${esc(o.ref)}</td><td>${esc(a?a.name:'-')}</td><td>${c?esc(c.adCode):'-'}</td><td>${baht(o.amount)}</td><td>${baht(o.commission)}</td><td>${statusBadge(o.status)}</td>
+    <td style="white-space:nowrap">${o.status==='pending'?`<button class="btn secondary small" onclick="setOrderStatus('${o.id}','approved')">อนุมัติ</button> `:''}${o.status!=='paid'?`<button class="btn secondary small" onclick="setOrderStatus('${o.id}','paid')">จ่ายแล้ว</button> `:''}<button class="btn danger small" onclick="delItem('orders','${o.id}','ออเดอร์')">ลบ</button></td></tr>`;}).join('')}
+  </table></div>`;}
+
+function orderForm(){
+  openModal('บันทึกออเดอร์ใหม่',`
+  <label>พันธมิตร</label><select id="f_aff">${DB.affiliates.map(a=>`<option value="${a.id}">${esc(a.name)} (${a.pct}%)</option>`).join('')}</select>
+  <label>แคมเปญที่มา</label><select id="f_camp"><option value="">— ไม่ระบุ —</option>${DB.campaigns.map(c=>`<option value="${c.id}">${esc(c.name)} [${esc(c.adCode)}]</option>`).join('')}</select>
+  <label>ยอดขาย (บาท)</label><input id="f_amt" type="number" min="1" placeholder="เช่น 1290">
+  <label>รหัสอ้างอิงออเดอร์</label><input id="f_ref" value="ORD-${Math.floor(Math.random()*90000+10000)}">`,
+  ()=>{const amt=parseFloat($('f_amt').value);const aff=DB.affiliates.find(a=>a.id===$('f_aff').value);
+    if(!aff||!(amt>0)){toast('กรอกยอดขายเป็นตัวเลขมากกว่า 0');return false;}
+    DB.orders.push({id:uid(),affId:aff.id,campId:$('f_camp').value||null,amount:amt,commission:+(amt*aff.pct/100).toFixed(2),status:'pending',ref:$('f_ref').value.trim()||'ORD-'+Date.now(),createdAt:new Date().toISOString()});
+    log('ออเดอร์ใหม่ '+baht(amt)+' จาก '+aff.name);persist();renderRoute();toast('บันทึกออเดอร์แล้ว — คอมมิชชั่น '+(amt*aff.pct/100).toFixed(0)+' บาท');});}
+
+function setOrderStatus(id,st){const o=DB.orders.find(x=>x.id===id);if(!o)return;
+  o.status=st;log((st==='approved'?'อนุมัติ':'จ่ายคอมมิชชั่นแล้ว')+' — ออเดอร์ '+o.ref);
+  persist();renderRoute();toast(st==='approved'?'อนุมัติแล้ว':'ทำเครื่องหมายจ่ายแล้ว');}
+
+/* ================= 6) คลัง Creative ================= */
+function renderCreatives(){
+  $('view').innerHTML=`<div class="toolbar"><button class="btn" onclick="creativeForm()">+ อัปโหลดแบนเนอร์</button><span class="muted">รองรับทั้ง URL รูปที่โฮสต์จริง และไฟล์รูปจากเครื่อง</span></div>
+  <div class="creative-grid">${DB.creatives.map(cr=>`<div class="creative"><img src="${esc(cr.url||cr.dataUrl)}" alt="${esc(cr.name)}"><b style="font-size:13px">${esc(cr.name)}</b><div class="muted">${cr.kind==='desktop'?'Desktop':'Mobile'} · ${esc(cr.size||'')}</div>
+  <div style="display:flex;gap:6px;margin-top:8px"><button class="btn secondary small" onclick="copyCreative('${cr.id}')">โค้ด</button><button class="btn danger small" onclick="delItem('creatives','${cr.id}','แบนเนอร์')">ลบ</button></div></div>`).join('')||'<span class="muted">ยังไม่มีแบนเนอร์ — กด "อัปโหลดแบนเนอร์" เพื่อเพิ่ม</span>'}</div>`;}
+
+let tmpDataUrl=null;
+function loadImg(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>tmpDataUrl=r.result;r.readAsDataURL(f);}
+function creativeForm(){tmpDataUrl=null;
+  openModal('อัปโหลดแบนเนอร์',`
+  <label>ชื่อแบนเนอร์</label><input id="f_name" placeholder="เช่น แบนเนอร์คอลลาเจน Flash Sale">
+  <label>ประเภท</label><select id="f_kind"><option value="desktop">Desktop</option><option value="mobile">Mobile</option></select>
+  <label>ขนาด</label><input id="f_size" placeholder="เช่น 1200x628">
+  <label>URL รูป (แนะนำ — โฮสต์จริง เช่น CDN)</label><input id="f_url" placeholder="https://...">
+  <label>หรือเลือกไฟล์รูปจากเครื่อง (เก็บไว้ดูพรีวิวในระบบ)</label><input id="f_file" type="file" accept="image/*" onchange="loadImg(this)">`,
+  ()=>{const name=$('f_name').value.trim();const url=$('f_url').value.trim();
+    if(!name){toast('กรอกชื่อแบนเนอร์');return false;}
+    if(!url&&!tmpDataUrl){toast('ใส่ URL รูป หรือเลือกไฟล์อย่างน้อย 1 อย่าง');return false;}
+    DB.creatives.push({id:uid(),name,kind:$('f_kind').value,size:$('f_size').value.trim(),url,dataUrl:tmpDataUrl});
+    log('เพิ่มแบนเนอร์: '+name);persist();renderRoute();toast('เพิ่มแบนเนอร์แล้ว');});}
+
+function copyCreative(id){const cr=DB.creatives.find(x=>x.id===id);
+  const code=`<a href="https://your-site.vercel.app/?ref=ADCODE"><img src="${cr.url||cr.dataUrl}" alt="${esc(cr.name)}" style="max-width:100%"></a>`;
+  openModal('โค้ดแบนเนอร์: '+cr.name,`<p class="muted" style="margin-top:8px">แทน href ด้วยลิงก์ติดตามของแคมเปญ (ปุ่ม "ลิงก์" ในหน้าแคมเปญ) ก่อนใช้งาน</p>
+  <textarea id="cc" rows="5" readonly style="margin-top:8px;font-family:monospace;font-size:11px">${esc(code)}</textarea>
+  <button class="btn" style="margin-top:10px" onclick="navigator.clipboard.writeText(document.getElementById('cc').value).then(()=>toast('คัดลอกแล้ว'))">คัดลอกโค้ด</button>`,null);}
+
+/* ================= 7) Channel Mix ================= */
+function renderChannels(){
+  $('view').innerHTML=`<div class="toolbar"><button class="btn" onclick="channelForm()">+ เพิ่มช่องทาง</button><span class="muted">หยุดช่องทางเพื่อพักการรับทราฟฟิกจากแพลตฟอร์มนั้น</span></div>
+  <div class="panel"><table><tr><th>ช่องทาง</th><th>หมายเหตุ</th><th>สถานะ</th><th>จัดการ</th></tr>
+  ${DB.channels.map(ch=>`<tr><td><b>${esc(ch.name)}</b></td><td>${esc(ch.note||'-')}</td><td>${ch.status==='active'?'<span class="badge on">เปิดรับ</span>':'<span class="badge off">หยุดรับ</span>'}</td>
+  <td style="white-space:nowrap"><button class="btn secondary small" onclick="toggleChannel('${ch.id}')">${ch.status==='active'?'หยุด':'เปิด'}</button> <button class="btn danger small" onclick="delItem('channels','${ch.id}','ช่องทาง')">ลบ</button></td></tr>`).join('')}
+  </table></div>`;}
+
+function channelForm(){
+  openModal('เพิ่มช่องทาง',`
+  <label>ชื่อช่องทาง</label><input id="f_name" placeholder="เช่น YouTube, Shopee Live">
+  <label>หมายเหตุ</label><input id="f_note" placeholder="รายละเอียด (ไม่บังคับ)">`,
+  ()=>{const name=$('f_name').value.trim();if(!name){toast('กรอกชื่อช่องทาง');return false;}
+    DB.channels.push({id:uid(),name,note:$('f_note').value.trim(),status:'active'});
+    log('เพิ่มช่องทาง: '+name);persist();renderRoute();toast('เพิ่มแล้ว');});}
+
+function toggleChannel(id){const ch=DB.channels.find(x=>x.id===id);
+  ch.status=ch.status==='active'?'paused':'active';
+  log((ch.status==='active'?'เปิด':'หยุด')+'ช่องทาง '+ch.name);persist();renderRoute();}
+
+/* ================= 8) ตั้งค่าระบบ ================= */
+function renderSettings(){
+  $('view').innerHTML=`
+  <div class="grid two" style="align-items:start">
+    <div class="panel"><h3>⚙️ ทั่วไป</h3>
+      <label>ชื่อร้าน / แบรนด์</label><input id="s_store" value="${esc(DB.settings.store)}">
+      <label>คอมมิชชั่นเริ่มต้น (%) สำหรับพันธมิตรใหม่</label><input id="s_pct" type="number" min="1" max="50" value="${DB.settings.defaultPct}">
+      <label>เขตเวลา</label><select id="s_tz">${['Asia/Bangkok','Asia/Tokyo','UTC'].map(z=>`<option ${DB.settings.tz===z?'selected':''}>${z}</option>`).join('')}</select>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="s_public" style="width:auto" ${DB.settings.publicStats?'checked':''}> เปิด Public Stats (สถิติภายนอก ไม่ต้องล็อกอิน)</label>
+    </div>
+    <div>
+      <div class="panel"><h3>🔐 Webhook & ลายเซ็น HMAC-SHA256</h3>
+        <label>Webhook Secret</label>
+        <div style="display:flex;gap:8px"><input id="s_secret" readonly value="${esc(DB.settings.secret)}"><button class="btn secondary" onclick="newSecret()">สุ่มใหม่</button></div>
+        <p class="muted" style="margin-top:10px">ทดสอบการยืนยันลายเซ็นแบบเดียวกับ header X-Hydra-Signature — ระบบยอมรับเฉพาะข้อมูลที่ลงลายเซ็นด้วย Secret นี้เท่านั้น</p>
+        <label>Payload (JSON)</label><textarea id="w_payload" rows="3">{"affiliate_id":"a1","campaign_code":"COLL10","amount":1290,"order_ref":"TEST-001"}</textarea>
+        <label>Signature (base64)</label><input id="w_sig" placeholder='กด "สร้างลายเซ็น" เพื่อกรอกอัตโนมัติ'>
+        <div style="display:flex;gap:8px;margin-top:14px"><button class="btn secondary" onclick="signPayload()">สร้างลายเซ็น</button><button class="btn" onclick="verifyPayload()">ตรวจสอบลายเซ็น</button></div>
+        <p id="w_result" style="margin-top:10px;font-size:13px"></p>
+      </div>
+      <div class="panel"><h3>👤 ผู้ดูแลระบบ</h3>
+        <label>ชื่อผู้ใช้</label><input id="s_user" value="${esc(DB.settings.user)}">
+        <label>รหัสผ่านใหม่ (เว้นว่าง = ไม่เปลี่ยน)</label><input id="s_pass" type="password" placeholder="อย่างน้อย 4 ตัว">
+      </div>
+    </div>
+  </div>
+  <button class="btn" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
+  <div class="panel" style="margin-top:16px"><h3>🗄 ข้อมูลระบบ</h3>
+    <p class="muted">โหมดปัจจุบันเก็บข้อมูลใน localStorage ของเบราว์เซอร์นี้ (เหมาะกับการเริ่มต้น หรือใช้งานเจ้าของเดียว) — หากต้องการใช้ร่วมกันหลายเครื่องและรับ Webhook อัตโนมัติ ให้ต่อฐานข้อมูลจริง เช่น Supabase</p>
+    <button class="btn danger" style="margin-top:10px" onclick="resetDemo()">ล้างข้อมูล & รีเซ็ตระบบ</button>
+  </div>`;}
+
+function saveSettings(){const pct=parseFloat($('s_pct').value);
+  if(!(pct>0&&pct<=50)){toast('คอมมิชชั่นต้องอยู่ระหว่าง 1-50%');return;}
+  Object.assign(DB.settings,{store:$('s_store').value.trim()||'ร้านของฉัน',defaultPct:pct,tz:$('s_tz').value,publicStats:$('s_public').checked,user:$('s_user').value.trim()||'admin'});
+  const p=$('s_pass').value;
+  if(p){if(p.length<4){toast('รหัสผ่านต้องยาวอย่างน้อย 4 ตัว');return;}DB.settings.pass=p;log('เปลี่ยนรหัสผ่านผู้ดูแลแล้ว');}
+  log('อัปเดตการตั้งค่าระบบ');persist();toast('บันทึกการตั้งค่าแล้ว');renderRoute();}
+
+function newSecret(){DB.settings.secret=randHex(16);persist();$('s_secret').value=DB.settings.secret;toast('สุ่ม Secret ใหม่แล้ว — อย่าลืมอัปเดตฝั่งผู้ส่ง Webhook');}
+
+async function hmacB64(secret,msg){const enc=new TextEncoder();
+  const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+  const sig=await crypto.subtle.sign('HMAC',key,enc.encode(msg));
+  return btoa(String.fromCharCode(...new Uint8Array(sig)));}
+async function signPayload(){try{const sig=await hmacB64(DB.settings.secret,$('w_payload').value.trim());
+  $('w_sig').value=sig;$('w_result').textContent='สร้างลายเซ็นแล้ว — คัดลอกไปใส่ header X-Hydra-Signature ได้';}
+  catch(e){$('w_result').textContent='ไม่สามารถสร้างลายเซ็นได้';}}
+async function verifyPayload(){const sig=$('w_sig').value.trim();
+  if(!sig){toast('กรอกลายเซ็นก่อน (หรือกด "สร้างลายเซ็น")');return;}
+  const exp=await hmacB64(DB.settings.secret,$('w_payload').value.trim());
+  $('w_result').innerHTML=sig===exp?'<b style="color:#059669">ลายเซ็นถูกต้อง — ยอมรับข้อมูลนี้</b>':'<b style="color:#dc2626">ลายเซ็นไม่ตรง — ปฏิเสธข้อมูล</b>';}
+
+function resetDemo(){if(confirm('ล้างข้อมูลทั้งหมดและรีเซ็ตระบบกลับค่าเริ่มต้น?')){localStorage.removeItem(KEY);location.reload();}}
+
+function showPublic(){const clicks=DB.campaigns.reduce((s,c)=>s+(+c.clicks||0),0);
+  const rev=DB.orders.reduce((s,o)=>s+ +o.amount,0);
+  openModal('สถิติสาธารณะ — '+DB.settings.store,`
+  <div class="grid cards" style="margin-top:8px">
+    <div class="stat"><div class="k">คลิกทั้งหมด</div><div class="v">${clicks.toLocaleString('th-TH')}</div></div>
+    <div class="stat"><div class="k">ออเดอร์</div><div class="v">${DB.orders.length}</div></div>
+    <div class="stat"><div class="k">ยอดขายรวม</div><div class="v">${baht(rev)}</div></div>
+  </div><p class="muted">อัปเดตล่าสุด: ${new Date().toLocaleString('th-TH')}</p>`,null);}
+
+/* ================= อื่น ๆ ================= */
+function delItem(coll,id,label){
+  if(confirm('ลบ'+label+'นี้?')){DB[coll]=DB[coll].filter(x=>x.id!==id);log('ลบ'+label);persist();renderRoute();toast('ลบแล้ว');}}
+
+(function init(){
+  // นับคลิกจากลิงก์ติดตาม ?ref=CODE
+  const ref=new URLSearchParams(location.search).get('ref');
+  if(ref){const code=ref.toUpperCase();const c=DB.campaigns.find(x=>x.adCode===code&&x.status==='active');
+    if(c){c.clicks++;log('คลิกใหม่จากลิงก์ '+code);persist();}}
+  if(sessionStorage.getItem('hydra_session')==='1'){$('login').classList.add('hidden');$('app').classList.remove('hidden');renderRoute();}
+  else if(DB.settings.publicStats){$('publicLink').innerHTML='<button class="btn secondary small" style="margin-top:10px" onclick="showPublic()">ดูสถิติสาธารณะ (Public Stats)</button>';}
+  window.addEventListener('hashchange',()=>{if(sessionStorage.getItem('hydra_session')==='1')renderRoute();});
+})();
+</script>
+</body>
+</html>
